@@ -1,0 +1,15 @@
+import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { create, destroy, edit, index, show } from '@/routes/teams';
+
+type Team = { id: number; name: string; label: string; description: string | null; users_count: number };
+
+export default function TeamsIndex({ teams }: { teams: Team[] }) {
+    const { flash } = usePage().props;
+    return <><Head title="Teams" /><div className="relative min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8 md:py-10"><div className="mx-auto max-w-7xl space-y-8"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-primary text-xs font-semibold tracking-[0.22em] uppercase">Administration</p><h1 className="mt-3 text-3xl font-semibold tracking-tight">Teams</h1><p className="text-muted-foreground mt-2 text-sm">Create and manage the teams used by your organization.</p></div><Button asChild size="lg"><Link href={create()}><Plus /> Create team</Link></Button></div>{flash.success && <p className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm font-medium text-emerald-700">{flash.success}</p>}<div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{teams.map((team) => <Card key={team.id} className="border-white/70 bg-white/80 shadow-xl shadow-slate-900/5 backdrop-blur dark:border-white/10 dark:bg-slate-900/70"><CardHeader><div className="flex items-start justify-between gap-3"><div className="rounded-xl bg-blue-100 p-2 text-blue-700"><UsersRound className="size-5" /></div><Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">{team.label}</Badge></div><CardTitle className="pt-3">{team.name}</CardTitle></CardHeader><CardContent><p className="text-muted-foreground min-h-12 text-sm">{team.description || 'No description provided.'}</p><p className="text-muted-foreground mt-5 text-xs">{team.users_count} assigned user{team.users_count === 1 ? '' : 's'}</p><div className="mt-5 flex gap-2"><Button variant="outline" size="sm" asChild><Link href={show(team)}>View</Link></Button><Button variant="ghost" size="icon" asChild><Link href={edit(team)} aria-label={`Edit ${team.name}`}><Pencil /></Link></Button><Form {...destroy.form(team)} onSubmit={(event) => { if (!window.confirm(`Delete ${team.name}?`)) event.preventDefault(); }}><Button type="submit" variant="ghost" size="icon" className="hover:bg-red-100 hover:text-red-700" aria-label={`Delete ${team.name}`}><Trash2 /></Button></Form></div></CardContent></Card>)}</div>{teams.length === 0 && <div className="rounded-2xl border border-dashed border-slate-300 bg-white/50 px-6 py-12 text-center"><p className="font-semibold">No teams created yet</p><p className="text-muted-foreground mt-1 text-sm">Create a team with your own name, label, and description.</p></div>}</div></div></>;
+}
+
+TeamsIndex.layout = { breadcrumbs: [{ title: 'Teams', href: index() }] };
